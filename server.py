@@ -1,4 +1,4 @@
-# Luke Garrison
+# Luke Garrison, Nick Ward
 # 4/29/2016
 # game server
 
@@ -14,12 +14,15 @@ class Player1CommandConnection(Protocol):
     def __init__(self, addr, gameServer):
         self.addr = addr
         self.gameServer = gameServer
+        self.gameServer.p1_connection = self
         print "connection received from", addr
         print "p1 is connected"
 
     def connectionMade(self):
         self.gameServer.p1_isConnected = True
         self.gameServer.getConnectionStatus()
+        if self.gameServer.isReadyToStart():
+            self.gameServer.sendStartSignal()
 
     def dataReceived(self, data):
         print "command received from p1"
@@ -41,10 +44,13 @@ class Player2CommandConnection(Protocol):
         self.gameServer = gameServer
         print "connection received from", addr
         print "p2 is connected"
+        self.gameServer.p2_connection = self
 
     def connectionMade(self):
         self.gameServer.p2_isConnected = True
         self.gameServer.getConnectionStatus()
+        if self.gameServer.isReadyToStart():
+            self.gameServer.sendStartSignal()
 
     def dataReceived(self, data):
         print "command received from p2"
@@ -86,6 +92,9 @@ class GameServer():
         else:
             return False
 
+    def sendStartSignal(self):
+        self.p1_connection.transport.write("start")
+        self.p2_connection.transport.write("start")
 
 if __name__ == "__main__":
     sever = GameServer()
