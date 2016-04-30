@@ -52,7 +52,9 @@ class ServerCommandConnection(Protocol):
 
     def tick(self):
         self.screen.fill(self.black)
+        pygame.event.pump()
 
+        keys = list()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 reactor.stop() 
@@ -60,11 +62,16 @@ class ServerCommandConnection(Protocol):
                 reactor.stop() 
             elif event.type == pygame.KEYDOWN: 
                 if self.isArrowKey(event.key):
-                    self.transport.write(str(event.key))
+                    # self.transport.write(str(event.key))
+                    keys.append(event.key)
             elif event.type == MOUSEBUTTONDOWN:
                 # if left button was clicked
                 if event.button == 1:
                     self.transport.write("punch")
+
+        if len(keys) is not 0:
+            keyData = pickle.dumps(keys)
+            self.transport.write(keyData)
 
         # update players
         for player in self.players:
