@@ -52,10 +52,10 @@ class ServerCommandConnection(Protocol):
             elif event.type == pygame.KEYDOWN: 
                 if self.isArrowKey(event.key):
                     self.transport.write(str(event.key))
-
-        leftMousePressed = pygame.mouse.get_pressed()[0]
-        if leftMousePressed:
-            self.transport.write("left mouse pressed")
+            elif event.type == MOUSEBUTTONDOWN:
+                # if left button was clicked
+                if event.button == 1:
+                    self.transport.write("punch")
 
         pygame.display.flip()
         reactor.callLater(TICK_RATE, self.tick)

@@ -53,6 +53,7 @@ class Player2CommandConnection(Protocol):
 
     def dataReceived(self, data):
         print "command received from p2"
+        print data
 
     def connectionLost(self, reason):
         print "connection lost from", self.addr
