@@ -7,6 +7,8 @@ from twisted.internet.protocol import Protocol, ClientFactory
 from twisted.internet.defer import DeferredQueue
 import pygame
 from pygame.locals import *
+import pickle
+from monkey import *
 
 SERVER_ADDRESS = "student02.cse.nd.edu"
 P1_PORT = 42201
@@ -20,6 +22,9 @@ class ServerCommandConnection(Protocol):
         self.windowSize = width, height = 800, 600
         self.screen = pygame.display.set_mode(self.windowSize)
         self.black = 0, 0, 0
+        p1Image = pygame.image.load('media/aiai.png')
+        p2Image = pygame.image.load('media/gongon.png')
+        self.players = [Player(p1Image), Player(p2Image)]
         reactor.callLater(TICK_RATE, self.tick)
 
     def connectionMade(self):
@@ -28,6 +33,10 @@ class ServerCommandConnection(Protocol):
     def dataReceived(self, data):
         if data == "start":
             print "better start pygame now"
+        else:
+            gamestate = pickle.loads(data)
+            #for player in self.players:
+            self.players[0].update(gamestate.p1_data)
 
         print data
 
@@ -56,6 +65,10 @@ class ServerCommandConnection(Protocol):
                 # if left button was clicked
                 if event.button == 1:
                     self.transport.write("punch")
+
+        # update players
+        for player in self.players:
+            self.screen.blit(player.image, player.rect)
 
         pygame.display.flip()
         reactor.callLater(TICK_RATE, self.tick)
