@@ -20,12 +20,12 @@ class Player1CommandConnection(Protocol):
 
     def connectionMade(self):
         self.gameServer.p1_isConnected = True
-        self.gameServer.getConnectionStatus()
         if self.gameServer.isReadyToStart():
             self.gameServer.sendStartSignal()
 
     def dataReceived(self, data):
         print "command received from p1"
+        print data
 
     def connectionLost(self, reason):
         print "connection lost from", self.addr
@@ -48,7 +48,6 @@ class Player2CommandConnection(Protocol):
 
     def connectionMade(self):
         self.gameServer.p2_isConnected = True
-        self.gameServer.getConnectionStatus()
         if self.gameServer.isReadyToStart():
             self.gameServer.sendStartSignal()
 
@@ -75,16 +74,6 @@ class GameServer():
         self.p1_isConnected = False;
         self.p2_isConnected = False;
 
-    def getConnectionStatus(self):
-        if self.p1_isConnected and self.p2_isConnected:
-            print "Both players are connected"
-        elif self.p1_isConnected and not self.p2_isConnected:
-            print "p1 is connected, but p2 is not"
-        elif not self.p1_isConnected and self.p2_isConnected:
-            print "p2 is connected, but p1 is not"
-        else:
-            print "Neither player is connected"
-    
     # returns True/False if both players are connected to the game server
     def isReadyToStart(self):
         if self.p1_isConnected and self.p2_isConnected:
