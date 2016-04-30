@@ -12,10 +12,10 @@ P2_PORT = 42202
 
 class Player1CommandConnection(Protocol):
     def __init__(self, addr, gameServer):
-        # save addr for later use
         self.addr = addr
         self.gameServer = gameServer
         print "connection received from", addr
+        print "p1 is connected"
 
     def connectionMade(self):
         self.gameServer.p1_isConnected = True
@@ -37,10 +37,10 @@ class Player1CommandConnectionFactory(Factory):
 
 class Player2CommandConnection(Protocol):
     def __init__(self, addr, gameServer):
-        # save addr for later use
         self.addr = addr
         self.gameServer = gameServer
         print "connection received from", addr
+        print "p2 is connected"
 
     def connectionMade(self):
         self.gameServer.p2_isConnected = True
@@ -58,7 +58,7 @@ class Player2CommandConnectionFactory(Factory):
         self.gameServer = gameServer
 
     def buildProtocol(self, addr):
-        return Player1CommandConnection(addr, self.gameServer)
+        return Player2CommandConnection(addr, self.gameServer)
 
 
 class GameServer():

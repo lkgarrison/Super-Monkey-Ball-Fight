@@ -1,6 +1,6 @@
-# Luke Garrison
-# 4/28/2016
-# work
+# Luke Garrison, Nick Ward
+# 4/29/2016
+# p1
 
 from twisted.internet import reactor
 from twisted.internet.protocol import Protocol, ClientFactory
@@ -14,14 +14,7 @@ class ServerCommandConnection(Protocol):
         print "new connection made to", SERVER_ADDRESS, "port", P1_PORT
         
     def dataReceived(self, data):
-        if data == "start data connection":
-            reactor.connectTCP(SERVER_ADDRESS, DATA_PORT, HomeWorkDataConnectionFactory(self))
-        return
-
-    def dropDataConnection(self):
-        # home.py is listening for this command. If it receives it, it will stop listening
-        # on the data port
-        self.transport.write("drop data connection")
+        print data
 
     def connectionLost(self, reason):
         print "lost connection to", SERVER_ADDRESS, "port", P1_PORT
