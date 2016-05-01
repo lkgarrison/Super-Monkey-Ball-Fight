@@ -22,7 +22,13 @@ class ServerCommandConnection(Protocol):
         self.windowSize = width, height = 800, 600
         self.screen = pygame.display.set_mode(self.windowSize)
         self.black = 0, 0, 0
-        p1Image = pygame.image.load('media/aiai.png')
+
+        # initialize background
+        self.backgroundImage = pygame.image.load('media/background.png')
+        self.backgroundRect = self.backgroundImage.get_rect()
+    	self.backgroundRect.center = (400, 300)
+
+    	p1Image = pygame.image.load('media/aiai.png')
         p2Image = pygame.image.load('media/gongon.png')
         self.players = [Player(p1Image), Player(p2Image)]
         reactor.callLater(TICK_RATE, self.tick)
@@ -66,6 +72,7 @@ class ServerCommandConnection(Protocol):
                     self.transport.write("punch")
 
         # update players
+        self.screen.blit(self.backgroundImage, self.backgroundRect)
         for player in self.players:
             self.screen.blit(player.image, player.rect)
 
