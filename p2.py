@@ -22,19 +22,21 @@ class ServerCommandConnection(Protocol):
 		self.windowSize = width, height = 800, 600
 		self.screen = pygame.display.set_mode(self.windowSize)
 		self.black = 0, 0, 0
+
+		# inialize background
+		self.backgroundImage = pygame.image.load('media/background.png')
+		self.backgroundRect = self.backgroundImage.get_rect()
+		self.backgroundRect.center = (400, 300)
+
 		p1Image = pygame.image.load('media/aiai.png')
 		p2Image = pygame.image.load('media/gongon.png')
 		self.players = [Player(p1Image), Player(p2Image)]
 		reactor.callLater(TICK_RATE, self.tick)
 
-	def initalize(self):
-		pass
-
 	def connectionMade(self):
 		print "new connection made to", SERVER_ADDRESS, "port", P2_PORT
 
 	def dataReceived(self, data):
-		print data
 		if data == "start":
 			print "both players are connected"
 		else:
@@ -68,6 +70,7 @@ class ServerCommandConnection(Protocol):
 				if event.button == 1:
 					self.transport.write("punch")
 
+		self.screen.blit(self.backgroundImage, self.backgroundRect)
 		# update players
 		for player in self.players:
 			self.screen.blit(player.image, player.rect)
