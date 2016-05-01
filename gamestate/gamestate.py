@@ -6,23 +6,60 @@ class PlayerData:
 		self.xpos = xpos
 		self.ypos = ypos
 		self.angle = angle
-		self.moveLength = 3
+		self.moveLength = 4
 		self.gameState = gs
+		self.radius = 17 # radius of ball based on image
 		self.isDead = False
 
-	def handleKeypress(self, key):
+	def handleKeypress(self, key, player):
+		# determine if p1 or p2 is currently moving
+		if player == 'p1':
+			opponent = self.gameState.p2_data
+		elif player == 'p2':
+			opponent = self.gameState.p1_data
+
 		if key == pygame.K_UP:
 			self.ypos -= self.moveLength
+			if self.isCollision(opponent):
+				# undo this player's movement and move the opponent instead
+				self.ypos += self.moveLength
+				opponent.ypos -= (self.moveLength + 1)
+				opponent.checkFallOff()
 			self.checkFallOff()
 		elif key == pygame.K_LEFT:
 			self.xpos -= self.moveLength
+			if self.isCollision(opponent):
+				# undo this player's movement and move the opponent instead
+				self.xpos += self.moveLength
+				opponent.xpos -= (self.moveLength + 1)
+				opponent.checkFallOff()
 			self.checkFallOff()
 		elif key == pygame.K_DOWN:
 			self.ypos += self.moveLength
+			if self.isCollision(opponent):
+				# undo this player's movement and move the opponent instead
+				self.ypos -= self.moveLength
+				opponent.ypos += (self.moveLength + 1)
+				opponent.checkFallOff()
 			self.checkFallOff()
 		elif key == pygame.K_RIGHT:
 			self.xpos += self.moveLength
+			if self.isCollision(opponent):
+				# undo this player's movement and move the opponent instead
+				self.xpos -= self.moveLength
+				opponent.xpos += (self.moveLength + 1)
+				opponent.checkFallOff()
 			self.checkFallOff()
+
+	# checks if the players have collided
+	def isCollision(self, opponent):
+		dx = self.xpos - opponent.xpos
+		dy = self.ypos - opponent.ypos
+		radiusSum = self.radius + opponent.radius
+		if ((dx * dx) + (dy * dy)) < (radiusSum * radiusSum):
+			return True
+		else:
+			return False
 
 	def checkFallOff(self):
 		if self.ypos < 100 or self.ypos > 500 or self.xpos < 200 or self.xpos > 600:

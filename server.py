@@ -32,7 +32,7 @@ class Player1CommandConnection(Protocol):
 		#process data
 		try:
 			key = int(data)
-			self.gameServer.gameState.p1_data.handleKeypress(key)
+			self.gameServer.gameState.p1_data.handleKeypress(key, "p1")
 		except Exception as ex:
 			pass
 
@@ -70,7 +70,7 @@ class Player2CommandConnection(Protocol):
 		#process data
 		try:
 			key = int(data)
-			self.gameServer.gameState.p2_data.handleKeypress(key)
+			self.gameServer.gameState.p2_data.handleKeypress(key, "p2")
 		except Exception as ex:
 			pass
 
