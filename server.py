@@ -21,9 +21,12 @@ class Player1CommandConnection(Protocol):
 		print "p1 is connected"
 
 	def connectionMade(self):
+		self.gameServer.gameState.addPlayer1()
 		self.gameServer.p1_isConnected = True
 		if self.gameServer.isReadyToStart():
 			self.gameServer.sendStartSignal()
+
+		self.gameServer.sendGameState()
 
 	def dataReceived(self, data):
 		print "command received from p1"
@@ -57,9 +60,12 @@ class Player2CommandConnection(Protocol):
 		self.gameServer.p2_connection = self
 
 	def connectionMade(self):
+		self.gameServer.gameState.addPlayer2()
 		self.gameServer.p2_isConnected = True
 		if self.gameServer.isReadyToStart():
 			self.gameServer.sendStartSignal()
+
+		self.gameServer.sendGameState()
 
 
 	def dataReceived(self, data):
@@ -104,19 +110,21 @@ class GameServer():
 			return False
 
 	def sendStartSignal(self):
-		self.p1_connection.transport.write("start")
-		self.p2_connection.transport.write("start")
+		print "sending start signal"
+		self.p1_connection.transport.write("start\r\n")
+		self.p2_connection.transport.write("start\r\n")
 
 	# send game state to all connected players
 	def sendGameState(self):
+		print "sending game state"
 		gameStateString = pickle.dumps(self.gameState)
 		try:
-			self.p1_connection.transport.write(gameStateString)
+			self.p1_connection.transport.write(gameStateString + "\r\n")
  		except:
  			pass
 
  		try:
- 			self.p2_connection.transport.write(gameStateString)
+ 			self.p2_connection.transport.write(gameStateString + "\r\n")
  		except:
  			pass
 

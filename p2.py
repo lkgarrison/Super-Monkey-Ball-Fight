@@ -5,6 +5,7 @@
 from twisted.internet import reactor
 from twisted.internet.protocol import Protocol, ClientFactory
 from twisted.internet.defer import DeferredQueue
+from twisted.protocols.basic import LineReceiver
 import pygame
 from pygame.locals import *
 import pickle
@@ -15,7 +16,7 @@ P2_PORT = 42202
 FPS = 30
 TICK_RATE = 1.0 / FPS
 
-class ServerCommandConnection(Protocol):
+class ServerCommandConnection(LineReceiver):
 	def __init__(self):
 		pygame.init()
 		pygame.key.set_repeat(1, 50)  # repeats keyevents to support holding down keys
@@ -27,6 +28,8 @@ class ServerCommandConnection(Protocol):
 		self.backgroundImage = pygame.image.load('media/background.png')
 		self.backgroundRect = self.backgroundImage.get_rect()
 		self.backgroundRect.center = (400, 300)
+		
+		self.bothConnected = False
 
 		p1Image = pygame.image.load('media/aiai.png')
 		p2Image = pygame.image.load('media/gongon.png')
@@ -36,13 +39,20 @@ class ServerCommandConnection(Protocol):
 	def connectionMade(self):
 		print "new connection made to", SERVER_ADDRESS, "port", P2_PORT
 
-	def dataReceived(self, data):
+	def lineReceived(self, data):
 		if data == "start":
 			print "both players are connected"
-		else:
+			self.bothConnected = True
+		elif self.bothConnected:
 			gamestate = pickle.loads(data)
 			self.players[0].update(gamestate.p1_data)
 			self.players[1].update(gamestate.p2_data)
+		else:
+			try:
+				gamestate = pickle.loads(data)
+				self.players[1].update(gamestate.p2_data)
+			except Exception as ex:
+				print ex
 
 	def connectionLost(self, reason):
 		print "lost connection to", SERVER_ADDRESS, "port", P2_PORT
@@ -62,18 +72,30 @@ class ServerCommandConnection(Protocol):
 				reactor.stop()
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 				reactor.stop()
-			elif event.type == pygame.KEYDOWN:
-				if self.isArrowKey(event.key):
-					self.transport.write(str(event.key))
-			elif event.type == MOUSEBUTTONDOWN:
-				# if left button was clicked
-				if event.button == 1:
-					self.transport.write("punch")
 
+			# only send events to allow movement to server if both players are connected
+			if self.bothConnected:
+				# handle arrow keys being pressed for movement
+				if event.type == pygame.KEYDOWN:
+					if self.isArrowKey(event.key):
+						self.transport.write(str(event.key))
+
+				# tell server that mouse was clicked
+				if event.type == MOUSEBUTTONDOWN:
+					# if left button was clicked
+					if event.button == 1:
+						self.transport.write("punch")
+
+		# display background image
 		self.screen.blit(self.backgroundImage, self.backgroundRect)
+
 		# update players
-		for player in self.players:
-			self.screen.blit(player.image, player.rect)
+		if self.bothConnected:
+			for player in self.players:
+				self.screen.blit(player.image, player.rect)
+		else:
+			# p1 is not connected yet, only display player 2
+			self.screen.blit(self.players[1].image, self.players[1].rect)
 
 		pygame.display.flip()
 		reactor.callLater(TICK_RATE, self.tick)

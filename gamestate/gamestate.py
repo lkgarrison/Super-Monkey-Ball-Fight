@@ -20,14 +20,16 @@ class PlayerData:
 
 class GameState:
 	def __init__(self):
-		# set initial angle and initial positions of the players
-		initialAngle = 0
+		return
 
+	def addPlayer1(self):
 		p1_xpos = 225
 		p1_ypos = 125
+		initialAngle = 0
 		self.p1_data = PlayerData(p1_xpos, p1_ypos, initialAngle)
 
+	def addPlayer2(self):
 		p2_xpos = 575
 		p2_ypos = 475
+		initialAngle = 0
 		self.p2_data = PlayerData(p2_xpos, p2_ypos, initialAngle)
-

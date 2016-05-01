@@ -14,4 +14,3 @@ class Player(pygame.sprite.Sprite):
 		self.ypos = data.ypos
 		self.rect = self.image.get_rect()
 		self.rect.center = (self.xpos, self.ypos)
-
