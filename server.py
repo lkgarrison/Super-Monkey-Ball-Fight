@@ -29,8 +29,6 @@ class Player1CommandConnection(Protocol):
 		self.gameServer.sendGameState()
 
 	def dataReceived(self, data):
-		print "command received from p1"
-
 		#process data
 		try:
 			key = int(data)
@@ -69,8 +67,6 @@ class Player2CommandConnection(Protocol):
 
 
 	def dataReceived(self, data):
-		print "command received from p2"
-
 		#process data
 		try:
 			key = int(data)
@@ -116,7 +112,6 @@ class GameServer():
 
 	# send game state to all connected players
 	def sendGameState(self):
-		print "sending game state"
 		gameStateString = pickle.dumps(self.gameState)
 		try:
 			self.p1_connection.transport.write(gameStateString + "\r\n")

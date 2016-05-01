@@ -13,7 +13,7 @@ class PlayerData:
 	def handleKeypress(self, key):
 		if key == pygame.K_UP:
 			self.ypos -= self.moveLength
-			self.checkFalliOff()
+			self.checkFallOff()
 		elif key == pygame.K_LEFT:
 			self.xpos -= self.moveLength
 			self.checkFallOff()
