@@ -30,7 +30,6 @@ class ServerCommandConnection(LineReceiver):
 		self.backgroundRect.center = (400, 300)
 		
 		self.bothConnected = False
-
 		p1Image = pygame.image.load('media/aiai.png')
 		p2Image = pygame.image.load('media/gongon.png')
 		self.players = [Player(p1Image), Player(p2Image)]
@@ -45,6 +44,13 @@ class ServerCommandConnection(LineReceiver):
 			self.bothConnected = True
 		elif self.bothConnected:
 			gamestate = pickle.loads(data)
+			gamestate = pickle.loads(data)
+			if gamestate.p1_data.isDead:
+				print "Player 2 Wins!"
+				reactor.stop()
+			elif gamestate.p2_data.isDead:
+				print "Player 1 Wins!"
+				reactor.stop()
 			self.players[0].update(gamestate.p1_data)
 			self.players[1].update(gamestate.p2_data)
 		else:

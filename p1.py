@@ -44,6 +44,12 @@ class ServerCommandConnection(LineReceiver):
 			self.bothConnected = True
 		elif self.bothConnected:
 			gamestate = pickle.loads(data)
+			if gamestate.p1_data.isDead:
+				print "Player 2 Wins!"
+				reactor.stop()
+			elif gamestate.p2_data.isDead:
+				print "Player 1 Wins!"
+				reactor.stop()
 			self.players[0].update(gamestate.p1_data)
 			self.players[1].update(gamestate.p2_data)
 		else:
@@ -73,6 +79,7 @@ class ServerCommandConnection(LineReceiver):
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 				reactor.stop() 
 
+			# only send events to allow movement to server if both players are connected
 			if self.bothConnected:
 				# handle arrow keys being pressed for movement
 				if event.type == pygame.KEYDOWN: 
@@ -85,8 +92,10 @@ class ServerCommandConnection(LineReceiver):
 					if event.button == 1:
 						self.transport.write("punch")
 
-		# update players
+		# display the background
 		self.screen.blit(self.backgroundImage, self.backgroundRect)
+
+		# update players
 		if self.bothConnected:
 			for player in self.players:
 				self.screen.blit(player.image, player.rect)
