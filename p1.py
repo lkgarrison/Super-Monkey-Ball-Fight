@@ -38,7 +38,6 @@ class ServerCommandConnection(Protocol):
             #for player in self.players:
             self.players[0].update(gamestate.p1_data)
 
-        print data
 
     def connectionLost(self, reason):
         print "lost connection to", SERVER_ADDRESS, "port", P1_PORT

@@ -27,7 +27,6 @@ class Player1CommandConnection(Protocol):
 
 	def dataReceived(self, data):
 		print "command received from p1"
-		print data
 
 		#process data
 		try:
@@ -65,9 +64,14 @@ class Player2CommandConnection(Protocol):
 
 	def dataReceived(self, data):
 		print "command received from p2"
-		print data
 
 		#process data
+		try:
+			key = int(data)
+			self.gameServer.gameState.p2_data.handleKeypress(key)
+		except:
+			pass
+
 		self.gameServer.sendGameState()
 
 	def connectionLost(self, reason):
