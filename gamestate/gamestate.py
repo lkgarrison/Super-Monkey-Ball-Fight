@@ -1,26 +1,31 @@
 import pygame
 from pygame.locals import *
+from twisted.internet import reactor
+from twisted.internet import task
 import time
 import math
+import pickle
 
 class PlayerData:
-	def __init__(self, gs, xpos=None, ypos=None, angle=None):
+	def __init__(self, gameState, xpos=None, ypos=None):
 		self.xpos = xpos
 		self.ypos = ypos
-		self.angle = angle
 		self.moveLength = 4
-		self.gameState = gs
+		self.gameState = gameState
 		self.radius = 17 # radius of ball based on image
 		self.bananaHalfWidth = 14
 		self.bananaHalfHeight = 9.5
 		self.numBananas = 0
+		self.isSlippingOnBanana = False
 		self.isDead = False
 		self.lastBananaDropTime = time.clock()
-		self.minDropInterval = 3 # in seconds
+		self.minDropInterval = 3 # number of seconds before you can drop another banana
 
 	# handle all keypresses
 	# includes movement keys (arrow keys), collision handling, falling off the edge, dropping a banana
+	# returns True/False if the keypress led to the player colliding with a banana
 	def handleKeypresses(self, keys, player):
+		isCollisionWithBanana = False
 		for key in keys:
 			# determine if p1 or p2 is currently moving
 			if player == 'p1':
@@ -33,6 +38,8 @@ class PlayerData:
 				hitBanana = self.isCollisionWithBanana()
 				if hitBanana != None:
 					print player, "hit a banana!"
+					isCollisionWithBanana = True
+					self.gameState.droppedBananas.remove(hitBanana)
 				if self.isCollision(opponent):
 					# undo this player's movement and move the opponent instead
 					self.ypos += self.moveLength
@@ -44,6 +51,8 @@ class PlayerData:
 				hitBanana = self.isCollisionWithBanana()
 				if hitBanana != None:
 					print player, "hit a banana!"
+					isCollisionWithBanana = True
+					self.gameState.droppedBananas.remove(hitBanana)
 				if self.isCollision(opponent):
 					# undo this player's movement and move the opponent instead
 					self.xpos += self.moveLength
@@ -55,6 +64,8 @@ class PlayerData:
 				hitBanana = self.isCollisionWithBanana()
 				if hitBanana != None:
 					print player, "hit a banana!"
+					isCollisionWithBanana = True
+					self.gameState.droppedBananas.remove(hitBanana)
 				if self.isCollision(opponent):
 					# undo this player's movement and move the opponent instead
 					self.ypos -= self.moveLength
@@ -66,6 +77,8 @@ class PlayerData:
 				hitBanana = self.isCollisionWithBanana()
 				if hitBanana != None:
 					print player, "hit a banana!"
+					isCollisionWithBanana = True
+					self.gameState.droppedBananas.remove(hitBanana)
 				if self.isCollision(opponent):
 					# undo this player's movement and move the opponent instead
 					self.xpos -= self.moveLength
@@ -99,6 +112,8 @@ class PlayerData:
 					self.numBananas -= 1
 					self.gameState.droppedBananas.append({"x": bananaX, "y": bananaY})
 
+		return isCollisionWithBanana
+	
 	# check if the player has collided with any of the dropped bananas
 	def isCollisionWithBanana(self):
 		for banana in self.gameState.droppedBananas:
@@ -125,12 +140,11 @@ class PlayerData:
 		else:
 			return False
 
+	# checks if player fell off
+	# if true, sets player's isDead property, which clients check for
 	def checkFallOff(self):
 		if self.ypos < 100 or self.ypos > 500 or self.xpos < 200 or self.xpos > 600:
 			self.isDead = True
-			raise Exception('fall')
-		else:
-			return
 
 class GameState:
 	def __init__(self):
@@ -139,11 +153,9 @@ class GameState:
 	def addPlayer1(self):
 		p1_xpos = 225
 		p1_ypos = 125
-		initialAngle = 0
-		self.p1_data = PlayerData(self, p1_xpos, p1_ypos, initialAngle)
+		self.p1_data = PlayerData(self, p1_xpos, p1_ypos)
 
 	def addPlayer2(self):
 		p2_xpos = 575
 		p2_ypos = 475
-		initialAngle = 0
-		self.p2_data = PlayerData(self, p2_xpos, p2_ypos, initialAngle)
+		self.p2_data = PlayerData(self, p2_xpos, p2_ypos)

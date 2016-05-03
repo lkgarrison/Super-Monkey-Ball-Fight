@@ -10,7 +10,6 @@ class Player(pygame.sprite.Sprite):
 
 	# update player instance with the data from the server
 	def update(self, data):
-		self.angle = data.angle
 		self.xpos = data.xpos
 		self.ypos = data.ypos
 		self.rect = self.image.get_rect()

@@ -130,9 +130,10 @@ class ServerCommandConnection(LineReceiver):
 				self.screen.blit(self.droppedBananaImage, self.droppedBananaRect)
 
 		# display banana count
-		label = self.font.render(str(self.players[0].numBananas), 1, (255,255,255))
-		self.screen.blit(label, (755, 30))
-		self.screen.blit(self.bananaImage, self.bananaRect)
+		if hasattr(self.players[0], 'numBananas'):
+			label = self.font.render(str(self.players[0].numBananas), 1, (255,255,255))
+			self.screen.blit(label, (755, 30))
+			self.screen.blit(self.bananaImage, self.bananaRect)
 
 		pygame.display.flip()
 		reactor.callLater(TICK_RATE, self.tick)
