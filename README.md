@@ -1,8 +1,8 @@
 # Super Monkey Ball Fight
 ![](https://github.com/lkgarrison/Super-Monkey-Ball-Fight/blob/master/media/actionShot.png)
 
-Super Monkey Ball Fight is 2D network-based fighting game based on the
-Monkey Fight minigame from Super Monkey Ball. In this game, players
+Super Monkey Ball Fight is a 2D network-based fighting game based on
+the Monkey Fight minigame from Super Monkey Ball. In this game, players
 attempt to knock each other off the battlefield by running into each
 other or dropping bananas to have the other player slip off the edge.
 
@@ -14,11 +14,12 @@ Additionally, the users must have the Twisted and PyGame libraries in
 order to connect and run the game. To start the game, one person can
 start the server, used for updating the changes to the game state and
 distributing the updates to the players, by executing the command:
-python server.py. Once the server is running, the players can connect
-by each running a player script. For instance, the first player can
-run the command: python p1.py and the second player can run the
-command: python p2.py. Once both players are connected the game will
-begin.
+```python server.py```. The player running the server must be on the
+machine 'student02.cse.nd.edu'. Once the server is running, the players
+can connect by each running a player script. For instance, the first
+player can run the command: ```python p1.py``` and the second player
+can run the command: ```python p2.py```. Once both players are
+connected the game will begin.
 
 
 ## Game Play
@@ -43,8 +44,8 @@ off the map, both players' game windows will close and the players
 are notified of the winner within their terminal window. Players
 can also quit early by exiting from the game window or by pressing
 the escape key, but either method will end the current game. Once
-a game is over, another round can be initiated once both players 
-run their scripts again and reconnect, as long as the server is 
-still running. If the server connection to either client is lost, 
-then the game will end and the server may need to be restarted
-before playing again.
+a game is over, the server will need to be restarted. After the
+server is restarted, both players can reconnect and player another
+round. If the server connection to either client is lost, then
+the game will end and the server will need to be restarted before
+playing again.
