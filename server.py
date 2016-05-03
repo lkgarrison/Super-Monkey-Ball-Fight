@@ -12,6 +12,7 @@ import pickle
 P1_PORT = 42201
 P2_PORT = 42202
 
+# server's connection to player 1
 class Player1CommandConnection(Protocol):
 	def __init__(self, addr, gameServer):
 		self.addr = addr
@@ -23,13 +24,15 @@ class Player1CommandConnection(Protocol):
 	def connectionMade(self):
 		self.gameServer.gameState.addPlayer1()
 		self.gameServer.p1_isConnected = True
+
+		# signal to the game server that play can begin
 		if self.gameServer.isReadyToStart():
 			self.gameServer.sendStartSignal()
 
 		self.gameServer.sendGameState()
 
 	def dataReceived(self, data):
-		#process data
+		# process any key presses
 		try:
 			key = int(data)
 			self.gameServer.gameState.p1_data.handleKeypress(key, "p1")
@@ -49,6 +52,7 @@ class Player1CommandConnectionFactory(Factory):
 		return Player1CommandConnection(addr, self.gameServer)
 
 
+# server's connection to player 2
 class Player2CommandConnection(Protocol):
 	def __init__(self, addr, gameServer):
 		self.addr = addr
@@ -67,7 +71,7 @@ class Player2CommandConnection(Protocol):
 
 
 	def dataReceived(self, data):
-		#process data
+		# process any key presses
 		try:
 			key = int(data)
 			self.gameServer.gameState.p2_data.handleKeypress(key, "p2")
@@ -110,7 +114,7 @@ class GameServer():
 		self.p1_connection.transport.write("start\r\n")
 		self.p2_connection.transport.write("start\r\n")
 
-	# send game state to all connected players
+	# send update game state to all connected players
 	def sendGameState(self):
 		gameStateString = pickle.dumps(self.gameState)
 		try:

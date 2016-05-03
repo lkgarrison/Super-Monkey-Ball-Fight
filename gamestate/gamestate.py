@@ -1,3 +1,5 @@
+# Nick Ward, Luke Garrison
+
 import pygame
 from pygame.locals import *
 
@@ -11,6 +13,7 @@ class PlayerData:
 		self.radius = 17 # radius of ball based on image
 		self.isDead = False
 
+	# update a player's position based on the specific key pressed
 	def handleKeypress(self, key, player):
 		# determine if p1 or p2 is currently moving
 		if player == 'p1':
@@ -18,6 +21,7 @@ class PlayerData:
 		elif player == 'p2':
 			opponent = self.gameState.p1_data
 
+		# player moves up
 		if key == pygame.K_UP:
 			self.ypos -= self.moveLength
 			if self.isCollision(opponent):
@@ -26,6 +30,7 @@ class PlayerData:
 				opponent.ypos -= (self.moveLength + 1)
 				opponent.checkFallOff()
 			self.checkFallOff()
+		# player moves left
 		elif key == pygame.K_LEFT:
 			self.xpos -= self.moveLength
 			if self.isCollision(opponent):
@@ -34,6 +39,7 @@ class PlayerData:
 				opponent.xpos -= (self.moveLength + 1)
 				opponent.checkFallOff()
 			self.checkFallOff()
+		# player moves down
 		elif key == pygame.K_DOWN:
 			self.ypos += self.moveLength
 			if self.isCollision(opponent):
@@ -42,6 +48,7 @@ class PlayerData:
 				opponent.ypos += (self.moveLength + 1)
 				opponent.checkFallOff()
 			self.checkFallOff()
+		# player moves right
 		elif key == pygame.K_RIGHT:
 			self.xpos += self.moveLength
 			if self.isCollision(opponent):
@@ -61,6 +68,7 @@ class PlayerData:
 		else:
 			return False
 
+	# check if the player has fallen off the board (center of character is off the grid)
 	def checkFallOff(self):
 		if self.ypos < 100 or self.ypos > 500 or self.xpos < 200 or self.xpos > 600:
 			self.isDead = True

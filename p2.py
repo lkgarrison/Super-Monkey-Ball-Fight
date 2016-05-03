@@ -20,6 +20,8 @@ class ServerCommandConnection(LineReceiver):
 	def __init__(self):
 		pygame.init()
 		pygame.key.set_repeat(1, 50)  # repeats keyevents to support holding down keys
+
+		# set up default graphics window
 		self.windowSize = width, height = 800, 600
 		self.screen = pygame.display.set_mode(self.windowSize)
 		self.black = 0, 0, 0
@@ -29,10 +31,14 @@ class ServerCommandConnection(LineReceiver):
 		self.backgroundRect = self.backgroundImage.get_rect()
 		self.backgroundRect.center = (400, 300)
 		
-		self.bothConnected = False
+		self.bothConnected = False	# prevents game form starting until both players are connected
+
+		# load and initialize players
 		p1Image = pygame.image.load('media/aiai.png')
 		p2Image = pygame.image.load('media/gongon.png')
 		self.players = [Player(p1Image), Player(p2Image)]
+
+		# updates the gamestate
 		reactor.callLater(TICK_RATE, self.tick)
 
 	def connectionMade(self):
@@ -44,16 +50,20 @@ class ServerCommandConnection(LineReceiver):
 			self.bothConnected = True
 		elif self.bothConnected:
 			gamestate = pickle.loads(data)
-			gamestate = pickle.loads(data)
+
+			# check if either player was knocked off
 			if gamestate.p1_data.isDead:
 				print "Player 2 Wins!"
 				reactor.stop()
 			elif gamestate.p2_data.isDead:
 				print "Player 1 Wins!"
 				reactor.stop()
+
+			# update player positions
 			self.players[0].update(gamestate.p1_data)
 			self.players[1].update(gamestate.p2_data)
 		else:
+			# set initial position of player 2
 			try:
 				gamestate = pickle.loads(data)
 				self.players[1].update(gamestate.p2_data)
@@ -70,6 +80,7 @@ class ServerCommandConnection(LineReceiver):
 		else:
 			return False
 
+	# handle user inputs and disply the resulting updated game
 	def tick(self):
 		self.screen.fill(self.black)
 
@@ -85,12 +96,6 @@ class ServerCommandConnection(LineReceiver):
 				if event.type == pygame.KEYDOWN:
 					if self.isArrowKey(event.key):
 						self.transport.write(str(event.key))
-
-				# tell server that mouse was clicked
-				if event.type == MOUSEBUTTONDOWN:
-					# if left button was clicked
-					if event.button == 1:
-						self.transport.write("punch")
 
 		# display background image
 		self.screen.blit(self.backgroundImage, self.backgroundRect)
