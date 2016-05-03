@@ -51,7 +51,6 @@ class Player1CommandConnection(Protocol):
 				if pygame.K_SPACE in collisionKeys:
 					collisionKeys = keys.remove(pygame.K_SPACE)
 				self.initBananaCollision(keys)
-				self.movePlayerAfterBananaCollision()
 
 		except Exception as ex:
 			print ex
@@ -64,6 +63,7 @@ class Player1CommandConnection(Protocol):
 		self.gameServer.gameState.p1_data.isSlippingOnBanana = True
 		self.keysPressedUponCollision = keys
 		self.numMovementsAfterBananaCollision = 0
+		self.movePlayerAfterBananaCollision()
 
 	# function that forced the player who slid on the banana to keep sliding in the direction they were travelling X number of times
 	def movePlayerAfterBananaCollision(self):
@@ -71,7 +71,12 @@ class Player1CommandConnection(Protocol):
 			self.numMovementsAfterBananaCollision += 1
 
 			# simulate a keypress from the user (reuse the same logic that the server checks each time the user moves (falling off, etc))
-			self.gameServer.gameState.p1_data.handleKeypresses(self.keysPressedUponCollision, "p1")
+			isCollisionWithBanana = self.gameServer.gameState.p1_data.handleKeypresses(self.keysPressedUponCollision, "p1")
+			if isCollisionWithBanana:
+				# if slipping on a banana caused the user to slip on another banana, restart the slipping
+				self.initBananaCollision(self.keysPressedUponCollision)
+				return
+
 			self.gameServer.sendGameState()
 			task.deferLater(reactor, BANANA_SLIDE_INTERVAL, self.movePlayerAfterBananaCollision)
 		else:
@@ -124,7 +129,6 @@ class Player2CommandConnection(Protocol):
 				if pygame.K_SPACE in collisionKeys:
 					collisionKeys = keys.remove(pygame.K_SPACE)
 				self.initBananaCollision(keys)
-				self.movePlayerAfterBananaCollision()
 
 		except Exception as ex:
 			print ex
@@ -138,6 +142,7 @@ class Player2CommandConnection(Protocol):
 		self.gameServer.gameState.p2_data.isSlippingOnBanana = True
 		self.keysPressedUponCollision = keys
 		self.numMovementsAfterBananaCollision = 0
+		self.movePlayerAfterBananaCollision()
 
 	# function that forced the player who slid on the banana to keep sliding in the direction they were travelling X number of times
 	def movePlayerAfterBananaCollision(self):
@@ -145,7 +150,12 @@ class Player2CommandConnection(Protocol):
 			self.numMovementsAfterBananaCollision += 1
 
 			# simulate a keypress from the user (reuse the same logic that the server checks each time the user moves (falling off, etc))
-			self.gameServer.gameState.p2_data.handleKeypresses(self.keysPressedUponCollision, "p2")
+			isCollisionWithBanana = self.gameServer.gameState.p2_data.handleKeypresses(self.keysPressedUponCollision, "p2")
+			if isCollisionWithBanana:
+				# if slipping on a banana caused the user to slip on another banana, restart the slipping
+				self.initBananaCollision(self.keysPressedUponCollision)
+				return
+
 			self.gameServer.sendGameState()
 			task.deferLater(reactor, BANANA_SLIDE_INTERVAL, self.movePlayerAfterBananaCollision)
 		else:
