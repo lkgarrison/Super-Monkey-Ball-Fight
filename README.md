@@ -1,4 +1,5 @@
 # Super Monkey Ball Fight
+![](https://github.com/lkgarrison/Super-Monkey-Ball-Fight/blob/master/media/actionShot.png)
 
 Super Monkey Ball Fight is 2D network-based fighting game based on the
 Monkey Fight minigame from Super Monkey Ball. In this game, players
