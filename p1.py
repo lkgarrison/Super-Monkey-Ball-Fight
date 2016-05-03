@@ -22,7 +22,7 @@ class ServerCommandConnection(LineReceiver):
 		pygame.key.set_repeat(1, 50)  # repeats keyevents to support holding down keys
 
 		# set up default graphics window
-		self.windowSize = width, height = 800, 600
+		self.windowSize = windowWidth, windowHeight = 800, 600
 		self.screen = pygame.display.set_mode(self.windowSize)
 		self.black = 0, 0, 0
 		self.gamestate = None
@@ -38,12 +38,16 @@ class ServerCommandConnection(LineReceiver):
 		# initialize slipping on banana warning sign
 		self.slipWarningSignImage = pygame.image.load('media/banana-warning-sign.png')
 		self.slipWarningSignRect = self.slipWarningSignImage.get_rect()
-		self.slipWarningSignRect.center = (400, 50)
+		self.slipWarningSignRect.center = (windowWidth/2, 50)
+
+		# initialize "waiting for other player" text
+		self.waitingForOpponentLabel = self.font.render("Waiting for Opponent to join...", 1, (255,255,255))
+		self.waitingForOpponentLabelPos = (windowWidth/2 - self.waitingForOpponentLabel.get_width()/2, windowHeight/2 - self.waitingForOpponentLabel.get_height()/2)
 
 		# initialize background
 		self.backgroundImage = pygame.image.load('media/background.png')
 		self.backgroundRect = self.backgroundImage.get_rect()
-		self.backgroundRect.center = (400, 300)
+		self.backgroundRect.center = (windowWidth/2, windowHeight/2)
 
 		self.bothConnected = False	# prevents game from starting until both players are connected
 
@@ -117,6 +121,10 @@ class ServerCommandConnection(LineReceiver):
 
 		# display the background
 		self.screen.blit(self.backgroundImage, self.backgroundRect)
+
+		# display "waiting for other players to join" message if not all players have joined
+		if not self.bothConnected:
+			self.screen.blit(self.waitingForOpponentLabel, self.waitingForOpponentLabelPos)
 
 		# update players
 		if self.bothConnected:
