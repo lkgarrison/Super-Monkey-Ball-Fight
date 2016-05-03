@@ -39,6 +39,11 @@ class ServerCommandConnection(LineReceiver):
 		self.droppedBananaImage = pygame.image.load('media/banana-peel.png')
 		self.droppedBananaRect = self.droppedBananaImage.get_rect()
 
+		# initialize slipping on banana warning sign
+		self.slipWarningSignImage = pygame.image.load('media/banana-warning-sign.png')
+		self.slipWarningSignRect = self.slipWarningSignImage.get_rect()
+		self.slipWarningSignRect.center = (400, 50)
+
 		# inialize background
 		self.backgroundImage = pygame.image.load('media/background.png')
 		self.backgroundRect = self.backgroundImage.get_rect()
@@ -135,6 +140,10 @@ class ServerCommandConnection(LineReceiver):
 			label = self.font.render(str(self.players[1].numBananas), 1, (255,255,255))
 			self.screen.blit(label, (755, 30))
 			self.screen.blit(self.bananaImage, self.bananaRect)
+
+		# display slip warning sign if player is currently slipping
+		if self.players[1].isSlippingOnBanana:
+			self.screen.blit(self.slipWarningSignImage, self.slipWarningSignRect)
 
 		pygame.display.flip()
 		reactor.callLater(TICK_RATE, self.tick)

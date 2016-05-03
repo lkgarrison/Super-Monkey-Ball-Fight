@@ -14,3 +14,4 @@ class Player(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.center = (self.xpos, self.ypos)
 		self.numBananas = data.numBananas
+		self.isSlippingOnBanana = data.isSlippingOnBanana

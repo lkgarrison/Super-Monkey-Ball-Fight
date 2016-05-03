@@ -77,6 +77,7 @@ class Player1CommandConnection(Protocol):
 		else:
 			# allow player to move again
 			self.gameServer.gameState.p1_data.isSlippingOnBanana = False
+			self.gameServer.sendGameState()
 
 	def connectionLost(self, reason):
 		print "connection lost from", self.addr
@@ -150,6 +151,7 @@ class Player2CommandConnection(Protocol):
 		else:
 			# allow player to move again
 			self.gameServer.gameState.p2_data.isSlippingOnBanana = False
+			self.gameServer.sendGameState()
 
 	def connectionLost(self, reason):
 		print "connection lost from", self.addr
