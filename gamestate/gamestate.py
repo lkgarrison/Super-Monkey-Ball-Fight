@@ -9,6 +9,7 @@ class PlayerData:
 		self.moveLength = 4
 		self.gameState = gs
 		self.radius = 17 # radius of ball based on image
+		self.numBananas = 0
 		self.isDead = False
 
 	def handleKeypress(self, key, player):
@@ -50,6 +51,11 @@ class PlayerData:
 				opponent.xpos += (self.moveLength + 1)
 				opponent.checkFallOff()
 			self.checkFallOff()
+		elif key == pygame.K_SPACE:
+			# drop a banana
+			print "banana dropped!"
+			self.gameState.droppedBananas.append({"x": self.xpos, "y": self.ypos})
+			print "number of bananas dropped:", str(len(self.gameState.droppedBananas))
 
 	# checks if the players have collided
 	def isCollision(self, opponent):
@@ -70,7 +76,7 @@ class PlayerData:
 
 class GameState:
 	def __init__(self):
-		return
+		self.droppedBananas = list()
 
 	def addPlayer1(self):
 		p1_xpos = 225

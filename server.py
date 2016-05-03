@@ -6,11 +6,13 @@ from twisted.internet.protocol import Factory, Protocol, ClientFactory
 from twisted.internet.tcp import Port
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredQueue
+from twisted.internet import task
 from gamestate import *
 import pickle
 
 P1_PORT = 42201
 P2_PORT = 42202
+BANANA_INTERVAL = 3
 
 class Player1CommandConnection(Protocol):
 	def __init__(self, addr, gameServer):
@@ -109,6 +111,16 @@ class GameServer():
 		print "sending start signal"
 		self.p1_connection.transport.write("start\r\n")
 		self.p2_connection.transport.write("start\r\n")
+
+		# start giving bananas to each player
+		task.deferLater(reactor, BANANA_INTERVAL, self.incrementBananas)
+
+	# increment the count of bananas for each player
+	def incrementBananas(self):
+		self.gameState.p1_data.numBananas += 1
+		self.gameState.p2_data.numBananas += 1
+		self.sendGameState()
+		task.deferLater(reactor, BANANA_INTERVAL, self.incrementBananas)
 
 	# send game state to all connected players
 	def sendGameState(self):

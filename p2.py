@@ -23,6 +23,10 @@ class ServerCommandConnection(LineReceiver):
 		self.windowSize = width, height = 800, 600
 		self.screen = pygame.display.set_mode(self.windowSize)
 		self.black = 0, 0, 0
+		self.font = pygame.font.SysFont("monospace", 30)
+		self.bananaImage = pygame.image.load('media/banana.png')
+		self.bananaRect = self.bananaImage.get_rect()
+		self.bananaRect.center = (720, 50)
 
 		# inialize background
 		self.backgroundImage = pygame.image.load('media/background.png')
@@ -43,7 +47,6 @@ class ServerCommandConnection(LineReceiver):
 			print "both players are connected"
 			self.bothConnected = True
 		elif self.bothConnected:
-			gamestate = pickle.loads(data)
 			gamestate = pickle.loads(data)
 			if gamestate.p1_data.isDead:
 				print "Player 2 Wins!"
@@ -102,6 +105,11 @@ class ServerCommandConnection(LineReceiver):
 		else:
 			# p1 is not connected yet, only display player 2
 			self.screen.blit(self.players[1].image, self.players[1].rect)
+
+		# display banana count
+		label = self.font.render(str(self.players[0].numBananas), 1, (255,255,255))
+		self.screen.blit(label, (755, 30))
+		self.screen.blit(self.bananaImage, self.bananaRect)
 
 		pygame.display.flip()
 		reactor.callLater(TICK_RATE, self.tick)
