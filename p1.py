@@ -125,7 +125,6 @@ class ServerCommandConnection(LineReceiver):
 
 		# display dropped bananas
 		if hasattr(self.gamestate, 'droppedBananas'):
-			print "has dropped bananas"
 			for banana in self.gamestate.droppedBananas:
 				self.droppedBananaRect.center = (banana['x'], banana['y'])
 				self.screen.blit(self.droppedBananaImage, self.droppedBananaRect)

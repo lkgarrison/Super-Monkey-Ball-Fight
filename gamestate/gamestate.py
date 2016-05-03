@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import time
+import math
 
 class PlayerData:
 	def __init__(self, gs, xpos=None, ypos=None, angle=None):
@@ -10,6 +11,8 @@ class PlayerData:
 		self.moveLength = 4
 		self.gameState = gs
 		self.radius = 17 # radius of ball based on image
+		self.bananaHalfWidth = 14
+		self.bananaHalfHeight = 9.5
 		self.numBananas = 0
 		self.isDead = False
 		self.lastBananaDropTime = time.clock()
@@ -27,6 +30,9 @@ class PlayerData:
 
 			if key == pygame.K_UP:
 				self.ypos -= self.moveLength
+				hitBanana = self.isCollisionWithBanana()
+				if hitBanana != None:
+					print player, "hit a banana!"
 				if self.isCollision(opponent):
 					# undo this player's movement and move the opponent instead
 					self.ypos += self.moveLength
@@ -35,6 +41,9 @@ class PlayerData:
 				self.checkFallOff()
 			elif key == pygame.K_LEFT:
 				self.xpos -= self.moveLength
+				hitBanana = self.isCollisionWithBanana()
+				if hitBanana != None:
+					print player, "hit a banana!"
 				if self.isCollision(opponent):
 					# undo this player's movement and move the opponent instead
 					self.xpos += self.moveLength
@@ -43,6 +52,9 @@ class PlayerData:
 				self.checkFallOff()
 			elif key == pygame.K_DOWN:
 				self.ypos += self.moveLength
+				hitBanana = self.isCollisionWithBanana()
+				if hitBanana != None:
+					print player, "hit a banana!"
 				if self.isCollision(opponent):
 					# undo this player's movement and move the opponent instead
 					self.ypos -= self.moveLength
@@ -51,6 +63,9 @@ class PlayerData:
 				self.checkFallOff()
 			elif key == pygame.K_RIGHT:
 				self.xpos += self.moveLength
+				hitBanana = self.isCollisionWithBanana()
+				if hitBanana != None:
+					print player, "hit a banana!"
 				if self.isCollision(opponent):
 					# undo this player's movement and move the opponent instead
 					self.xpos -= self.moveLength
@@ -83,6 +98,22 @@ class PlayerData:
 					self.lastBananaDropTime = time.clock()
 					self.numBananas -= 1
 					self.gameState.droppedBananas.append({"x": bananaX, "y": bananaY})
+
+	# check if the player has collided with any of the dropped bananas
+	def isCollisionWithBanana(self):
+		for banana in self.gameState.droppedBananas:
+			bananaX = banana['x']
+			bananaY = banana['y']
+			dx = self.xpos - bananaX
+			dy = self.ypos - bananaY
+			radiusSum = self.radius + math.sqrt((self.bananaHalfWidth**2) + (self.bananaHalfHeight**2))
+
+			# is collision
+			if ((dx * dx) + (dy * dy)) < (radiusSum * radiusSum):
+				return banana
+
+		# no collisions with bananas
+		return None
 
 	# checks if the players have collided
 	def isCollision(self, opponent):
