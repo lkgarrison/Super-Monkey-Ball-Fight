@@ -81,20 +81,6 @@ class ServerCommandConnection(LineReceiver):
 	def connectionLost(self, reason):
 		print "lost connection to", SERVER_ADDRESS, "port", P1_PORT
 
-	# checks if keypress from pygame is an arrow key or not
-	def isArrowKey(self, key):
-		if key == pygame.K_UP or key == pygame.K_LEFT or key == pygame.K_DOWN or key == pygame.K_RIGHT:
-			return True
-		else:
-			return False
-
-	# handle user inputs and display the resulting updated game
-	def isValidKey(self, key):
-		if self.isArrowKey(key) or key == pygame.K_SPACE:
-			return True
-		else:
-			return False
-
 	# get a list of the keys that are pressed that we want to handle
 	def addValidKeys(self, possibleKeys):
 		# valid keys to handle actions for
@@ -107,6 +93,8 @@ class ServerCommandConnection(LineReceiver):
 
 		return pressedValidKeys
 
+	# main loop that is called each FPS to process the players events and send them to the server
+	# update's players display
 	def tick(self):
 		self.screen.fill(self.black)
 
