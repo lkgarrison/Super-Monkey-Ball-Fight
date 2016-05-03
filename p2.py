@@ -23,10 +23,19 @@ class ServerCommandConnection(LineReceiver):
 		self.windowSize = width, height = 800, 600
 		self.screen = pygame.display.set_mode(self.windowSize)
 		self.black = 0, 0, 0
+		self.gamestate = None
 		self.font = pygame.font.SysFont("monospace", 30)
 		self.bananaImage = pygame.image.load('media/banana.png')
 		self.bananaRect = self.bananaImage.get_rect()
 		self.bananaRect.center = (720, 50)
+
+		# initialize bananas
+		self.font = pygame.font.SysFont("monospace", 30)
+		self.bananaImage = pygame.image.load('media/banana.png')
+		self.bananaRect = self.bananaImage.get_rect()
+		self.bananaRect.center = (720, 50)
+		self.droppedBananaImage = pygame.image.load('media/banana-peel.png')
+		self.droppedBananaRect = self.droppedBananaImage.get_rect()
 
 		# inialize background
 		self.backgroundImage = pygame.image.load('media/background.png')
@@ -47,19 +56,19 @@ class ServerCommandConnection(LineReceiver):
 			print "both players are connected"
 			self.bothConnected = True
 		elif self.bothConnected:
-			gamestate = pickle.loads(data)
-			if gamestate.p1_data.isDead:
+			self.gamestate = pickle.loads(data)
+			if self.gamestate.p1_data.isDead:
 				print "Player 2 Wins!"
 				reactor.stop()
-			elif gamestate.p2_data.isDead:
+			elif self.gamestate.p2_data.isDead:
 				print "Player 1 Wins!"
 				reactor.stop()
-			self.players[0].update(gamestate.p1_data)
-			self.players[1].update(gamestate.p2_data)
+			self.players[0].update(self.gamestate.p1_data)
+			self.players[1].update(self.gamestate.p2_data)
 		else:
 			try:
-				gamestate = pickle.loads(data)
-				self.players[1].update(gamestate.p2_data)
+				self.gamestate = pickle.loads(data)
+				self.players[1].update(self.gamestate.p2_data)
 			except Exception as ex:
 				print ex
 
@@ -73,6 +82,18 @@ class ServerCommandConnection(LineReceiver):
 		else:
 			return False
 
+	# get a list of the keys that are pressed that we want to handle
+	def addValidKeys(self, possibleKeys):
+		# valid keys to handle actions for
+		validKeys = [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_SPACE]
+		pressedValidKeys = list()
+
+		for key in validKeys:
+			if possibleKeys[key] == 1:
+				pressedValidKeys.append(key)
+
+		return pressedValidKeys
+
 	def tick(self):
 		self.screen.fill(self.black)
 
@@ -83,17 +104,10 @@ class ServerCommandConnection(LineReceiver):
 				reactor.stop()
 
 			# only send events to allow movement to server if both players are connected
-			if self.bothConnected:
-				# handle arrow keys being pressed for movement
-				if event.type == pygame.KEYDOWN:
-					if self.isArrowKey(event.key):
-						self.transport.write(str(event.key))
-
-				# tell server that mouse was clicked
-				if event.type == MOUSEBUTTONDOWN:
-					# if left button was clicked
-					if event.button == 1:
-						self.transport.write("punch")
+		if self.bothConnected:
+			validKeys = self.addValidKeys(pygame.key.get_pressed())
+			if len(validKeys) is not 0:
+				self.transport.write(pickle.dumps(validKeys))
 
 		# display background image
 		self.screen.blit(self.backgroundImage, self.backgroundRect)
@@ -106,8 +120,15 @@ class ServerCommandConnection(LineReceiver):
 			# p1 is not connected yet, only display player 2
 			self.screen.blit(self.players[1].image, self.players[1].rect)
 
+		# display dropped bananas
+		if hasattr(self.gamestate, 'droppedBananas'):
+			print "has dropped bananas"
+			for banana in self.gamestate.droppedBananas:
+				self.droppedBananaRect.center = (banana['x'], banana['y'])
+				self.screen.blit(self.droppedBananaImage, self.droppedBananaRect)
+
 		# display banana count
-		label = self.font.render(str(self.players[0].numBananas), 1, (255,255,255))
+		label = self.font.render(str(self.players[1].numBananas), 1, (255,255,255))
 		self.screen.blit(label, (755, 30))
 		self.screen.blit(self.bananaImage, self.bananaRect)
 

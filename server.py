@@ -33,8 +33,8 @@ class Player1CommandConnection(Protocol):
 	def dataReceived(self, data):
 		#process data
 		try:
-			key = int(data)
-			self.gameServer.gameState.p1_data.handleKeypress(key, "p1")
+			keys = pickle.loads(data)
+			self.gameServer.gameState.p1_data.handleKeypresses(keys, "p1")
 		except Exception as ex:
 			pass
 
@@ -71,8 +71,8 @@ class Player2CommandConnection(Protocol):
 	def dataReceived(self, data):
 		#process data
 		try:
-			key = int(data)
-			self.gameServer.gameState.p2_data.handleKeypress(key, "p2")
+			keys = pickle.loads(data)
+			self.gameServer.gameState.p2_data.handleKeypresses(keys, "p2")
 		except Exception as ex:
 			pass
 

@@ -23,7 +23,7 @@ class ServerCommandConnection(LineReceiver):
 		self.windowSize = width, height = 800, 600
 		self.screen = pygame.display.set_mode(self.windowSize)
 		self.black = 0, 0, 0
-		self.gameState = None
+		self.gamestate = None
 
 		# initialize bananas
 		self.font = pygame.font.SysFont("monospace", 30)
@@ -107,15 +107,10 @@ class ServerCommandConnection(LineReceiver):
 				reactor.stop() 
 
 			# only send events to allow movement to server if both players are connected
-			if self.bothConnected:
-				# handle arrow keys being pressed for movement
-				if event.type == pygame.KEYDOWN: 
-					if self.isValidKey(event.key):
-						self.transport.write(str(event.key))
-
-		# if self.bothConnected:
-		# 	validKeys = self.addValidKeys(pygame.key.get_pressed())
-
+		if self.bothConnected:
+			validKeys = self.addValidKeys(pygame.key.get_pressed())
+			if len(validKeys) is not 0:
+				self.transport.write(pickle.dumps(validKeys))
 
 		# display the background
 		self.screen.blit(self.backgroundImage, self.backgroundRect)
@@ -129,11 +124,10 @@ class ServerCommandConnection(LineReceiver):
 			self.screen.blit(self.players[0].image, self.players[0].rect)
 
 		# display dropped bananas
-		if hasattr(self.gameState, 'droppedBananas'):
+		if hasattr(self.gamestate, 'droppedBananas'):
 			print "has dropped bananas"
-			for banana in self.gameState.droppedBananas:
-				print banana
-				self.droppedBananaRect.center = (banana.x, banana.y)
+			for banana in self.gamestate.droppedBananas:
+				self.droppedBananaRect.center = (banana['x'], banana['y'])
 				self.screen.blit(self.droppedBananaImage, self.droppedBananaRect)
 
 		# display banana count
