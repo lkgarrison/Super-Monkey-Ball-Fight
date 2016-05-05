@@ -12,7 +12,7 @@ import pickle
 
 P1_PORT = 42201
 P2_PORT = 42202
-BANANA_RESPAWN_INTERVAL = 3
+BANANA_RESPAWN_INTERVAL = 4
 MAX_NUM_MOVEMENTS_AFTER_BANANA_COLLISION = 20
 BANANA_SLIDE_INTERVAL = .1
 
@@ -138,7 +138,6 @@ class Player2CommandConnection(Protocol):
 
 	# initialize data that needs to be reset before moving player after each banana collision
 	def initBananaCollision(self, keys):
-		print "initialized banana collision"
 		self.gameServer.gameState.p2_data.isSlippingOnBanana = True
 		self.keysPressedUponCollision = keys
 		self.numMovementsAfterBananaCollision = 0

@@ -17,7 +17,7 @@ class PlayerData:
 		self.radius = 17 # radius of ball based on image
 		self.bananaHalfWidth = 14  # based on banana-peel.png
 		self.bananaHalfHeight = 9.5
-		self.numBananas = 0
+		self.numBananas = 2
 		self.isSlippingOnBanana = False
 		self.lastBananaDropTime = time.clock()
 		self.minDropInterval = 3 # number of seconds before you can drop another banana
@@ -99,7 +99,7 @@ class PlayerData:
 			# drop a banana
 			bananaX = self.xpos
 			bananaY = self.ypos
-			
+
 			# place the banana behind the user the amount of self.radius
 			# find out which other keys were pressed
 			movementKeys = keys[:] # make a copy of the original list of keys
@@ -113,6 +113,10 @@ class PlayerData:
 					bananaX -= 2*self.radius
 				if mk == pygame.K_LEFT:
 					bananaX += 2*self.radius
+
+			# don't display banana if it is being dropped over the edge of the stage
+			if self.isOffStage(bananaX, bananaY):
+				return
 
 			self.lastBananaDropTime = time.clock()
 			self.numBananas -= 1
@@ -147,8 +151,15 @@ class PlayerData:
 	# check if the player has fallen off the board (center of character is off the grid)
 	# if true, sets player's isDead property, which clients check for
 	def checkFallOff(self):
-		if self.ypos < 100 or self.ypos > 500 or self.xpos < 200 or self.xpos > 600:
+		if self.isOffStage(self.xpos, self.ypos):
 			self.isDead = True
+
+	# returns True/False if the given coordinates are off the edge of the board or not
+	def isOffStage(self, x, y):
+		if y < 100 or y > 500 or x< 200 or x> 600:
+			return True
+		else:
+			return False
 
 	def isArrowKey(self, key):
 		if key == pygame.K_UP or key == pygame.K_DOWN or key == pygame.K_LEFT or key == pygame.K_RIGHT:
