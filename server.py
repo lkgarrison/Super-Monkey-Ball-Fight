@@ -12,9 +12,10 @@ import pickle
 
 P1_PORT = 42201
 P2_PORT = 42202
-BANANA_RESPAWN_INTERVAL = 4
+BANANA_RESPAWN_INTERVAL = 3
 MAX_NUM_MOVEMENTS_AFTER_BANANA_COLLISION = 20
 BANANA_SLIDE_INTERVAL = .1
+BANANA_PEEL_REFRESH_INTERVAL = 1  # interval to check for aged bananas
 
 # server's connection to player 1
 class Player1CommandConnection(Protocol):
@@ -200,6 +201,7 @@ class GameServer():
 
 		# start giving bananas to each player
 		task.deferLater(reactor, BANANA_RESPAWN_INTERVAL, self.incrementBananas)
+		task.deferLater(reactor, BANANA_PEEL_REFRESH_INTERVAL, self.checkAgedBananas)
 
 	# increment the count of bananas for each player
 	def incrementBananas(self):
@@ -207,6 +209,12 @@ class GameServer():
 		self.gameState.p2_data.numBananas += 1
 		self.sendGameState()
 		task.deferLater(reactor, BANANA_RESPAWN_INTERVAL, self.incrementBananas)
+
+	def checkAgedBananas(self):
+		shouldSendGameState = self.gameState.checkAgedBananas()
+		if shouldSendGameState:
+			self.sendGameState()
+		task.deferLater(reactor, BANANA_PEEL_REFRESH_INTERVAL, self.checkAgedBananas)
 
 	# send game state to all connected players
 	def sendGameState(self):

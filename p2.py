@@ -36,8 +36,12 @@ class ServerCommandConnection(LineReceiver):
 		self.bananaImage = pygame.image.load('media/banana.png')
 		self.bananaRect = self.bananaImage.get_rect()
 		self.bananaRect.center = (720, 50)
-		self.droppedBananaImage = pygame.image.load('media/banana-peel.png')
-		self.droppedBananaRect = self.droppedBananaImage.get_rect()
+
+		self.bananaPeelImage = pygame.image.load('media/banana-peel.png')
+		self.bananaPeelRect = self.bananaPeelImage.get_rect()
+
+		self.bananaPeelRottenImage = pygame.image.load('media/banana-peel-rotten.png')
+		self.bananaPeelRottenRect = self.bananaPeelRottenImage.get_rect()
 
 		# initialize slipping on banana warning sign
 		self.slipWarningSignImage = pygame.image.load('media/banana-warning-sign.png')
@@ -147,8 +151,13 @@ class ServerCommandConnection(LineReceiver):
 		# display dropped bananas
 		if hasattr(self.gamestate, 'droppedBananas'):
 			for banana in self.gamestate.droppedBananas:
-				self.droppedBananaRect.center = (banana['xpos'], banana['ypos'])
-				self.screen.blit(self.droppedBananaImage, self.droppedBananaRect)
+				# display rotten vs regular banana peel
+				if banana['isRotten']:
+					self.bananaPeelRottenRect.center = (banana['xpos'], banana['ypos'])
+					self.screen.blit(self.bananaPeelRottenImage, self.bananaPeelRottenRect)
+				else:
+					self.bananaPeelRect.center = (banana['xpos'], banana['ypos'])
+					self.screen.blit(self.bananaPeelImage, self.bananaPeelRect)
 
 		# display banana count
 		if hasattr(self.players[1], 'numBananas'):

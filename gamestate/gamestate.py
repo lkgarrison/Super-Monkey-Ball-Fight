@@ -8,6 +8,9 @@ import time
 import math
 import pickle
 
+BANANA_ROT_TIME = 30
+BANANA_EXPIRE_TIME = 35
+
 class PlayerData:
 	def __init__(self, gameState, xpos=None, ypos=None):
 		self.xpos = xpos
@@ -19,8 +22,8 @@ class PlayerData:
 		self.bananaHalfHeight = 9.5
 		self.numBananas = 2
 		self.isSlippingOnBanana = False
-		self.lastBananaDropTime = time.clock()
-		self.minDropInterval = 3 # number of seconds before you can drop another banana
+		self.lastBananaDropTime = time.time()
+		self.minDropInterval = 0.5 # number of seconds before you can drop another banana
 		self.isDead = False
 
 	# handle all keypresses
@@ -95,7 +98,7 @@ class PlayerData:
 	# depending on the direction they are traveling
 	def dropBanana(self, key, keys):
 		# if user has bananas to drop and it has been minDropInterval, player can drop the banana
-		if self.numBananas > 0 and (time.clock() - self.lastBananaDropTime) * 1000 >= self.minDropInterval:
+		if self.numBananas > 0 and (time.time() - self.lastBananaDropTime) >= self.minDropInterval:
 			# drop a banana
 			bananaX = self.xpos
 			bananaY = self.ypos
@@ -118,9 +121,16 @@ class PlayerData:
 			if self.isOffStage(bananaX, bananaY):
 				return
 
-			self.lastBananaDropTime = time.clock()
+			self.lastBananaDropTime = time.time()
 			self.numBananas -= 1
-			self.gameState.droppedBananas.append({"xpos": bananaX, "ypos": bananaY})
+			self.gameState.droppedBananas.append(
+					{
+						'xpos': bananaX, 
+						'ypos': bananaY,
+						'isRotten': False,
+						'dropTime': time.time()
+					}
+				)
 
 	# check if the player has collided with any of the dropped bananas
 	def isCollisionWithBanana(self):
@@ -180,3 +190,20 @@ class GameState:
 		p2_xpos = 575
 		p2_ypos = 475
 		self.p2_data = PlayerData(self, p2_xpos, p2_ypos)
+
+	# check if each banana is about to rot
+	# return True or False to indicate to server.py to send updated gamestate
+	def checkAgedBananas(self):
+		updatedGameState = False
+
+		curTime = time.time()
+		for banana in self.droppedBananas:
+			if curTime - banana['dropTime'] >= BANANA_EXPIRE_TIME:
+				self.droppedBananas.remove(banana)
+				updatedGameState = True
+			elif curTime - banana['dropTime'] >= BANANA_ROT_TIME and banana['isRotten'] is False:
+				banana['isRotten'] = True
+				updatedGameState = True
+
+		return updatedGameState
+
