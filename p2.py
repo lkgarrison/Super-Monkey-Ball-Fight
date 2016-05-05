@@ -48,8 +48,14 @@ class ServerCommandConnection(LineReceiver):
 		self.waitingForOpponentLabel = self.font.render("Waiting for Opponent to join...", 1, (255,255,255))
 		self.waitingForOpponentLabelPos = (windowWidth/2 - self.waitingForOpponentLabel.get_width()/2, windowHeight/2 - self.waitingForOpponentLabel.get_height()/2)
 
+		# initialize stage
+		self.stageImage = pygame.image.load('media/stage.png')
+		self.stageRect = self.stageImage.get_rect()
+		self.stageRect.center = (windowWidth/2, windowHeight/2)
+
 		# inialize background
 		self.backgroundImage = pygame.image.load('media/background.png')
+		self.backgroundImage = pygame.transform.scale(self.backgroundImage, self.windowSize)
 		self.backgroundRect = self.backgroundImage.get_rect()
 		self.backgroundRect.center = (windowWidth/2, windowHeight/2)
 		
@@ -122,8 +128,9 @@ class ServerCommandConnection(LineReceiver):
 			if len(validKeys) is not 0:
 				self.transport.write(pickle.dumps(validKeys))
 
-		# display background image
+		# display background and stage images
 		self.screen.blit(self.backgroundImage, self.backgroundRect)
+		self.screen.blit(self.stageImage, self.stageRect)
 
 		# display "waiting for other players to join" message if not all players have joined
 		if not self.bothConnected:
