@@ -147,7 +147,7 @@ class ServerCommandConnection(LineReceiver):
 		# display dropped bananas
 		if hasattr(self.gamestate, 'droppedBananas'):
 			for banana in self.gamestate.droppedBananas:
-				self.droppedBananaRect.center = (banana['x'], banana['y'])
+				self.droppedBananaRect.center = (banana['xpos'], banana['ypos'])
 				self.screen.blit(self.droppedBananaImage, self.droppedBananaRect)
 
 		# display banana count
